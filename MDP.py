@@ -73,40 +73,57 @@ def make_transition_prob(df_consumption: pd.DataFrame):
 
     return P
 
+COMMON_DAYS = [
+    [(1, 0), (2, -1), (-2, -1)],
+    [(1, -1), (2, 0), (-2, -1)],
+    [(1, -1), (3, 0), (-3, -1)],
+    [(1, 0), (-1, 0), (3, 1)]
+]
 
-def make_rewards():
+HOLIDAY_SEASON = [
+    [(1, 0), (1, 0), (-1, 0)],
+    [(1, -1), (3, 0), (-3, -2)],
+    [(1, 0), (-1, 0), (2, 0)],
+    [(1, 0), (-1, 0), (3, 1)]
+]
+
+def make_rewards(type: str = "common"):
     R = np.zeros((ACTIONS, NUM_STATES, NUM_STATES))
+    if type == "holiday":
+        rewards = HOLIDAY_SEASON
+    else:
+        rewards = COMMON_DAYS
     for a in range(ACTIONS):
         for s in range(NUM_STATES):
             for s_prime in range(NUM_STATES):
                 if s // NUM_STATES_PER_REGION == 0:  # residential
                     if a == 0:
-                        R[a, s, s_prime] = 1 if s_prime == s else 0
+                        R[a, s, s_prime] = rewards[0][0][0] if s_prime == s else rewards[0][0][1]
                     elif a == 1:
-                        R[a, s, s_prime] = 2 if s_prime > s else -1
+                        R[a, s, s_prime] = rewards[0][1][0] if s_prime > s else rewards[0][1][1]
                     elif a == 2:
-                        R[a, s, s_prime] = -2 if s_prime < s else 0
+                        R[a, s, s_prime] = rewards[0][2][0] if s_prime < s else rewards[0][2][1]
                 elif s // NUM_STATES_PER_REGION == 1:  # commercial
                     if a == 0:
-                        R[a, s, s_prime] = 1
+                        R[a, s, s_prime] = rewards[1][0][0] if s_prime == s else rewards[1][0][1]
                     elif a == 1:
-                        R[a, s, s_prime] = 2
+                        R[a, s, s_prime] = rewards[1][1][0] if s_prime > s else rewards[1][1][1]
                     elif a == 2:
-                        R[a, s, s_prime] = -1
+                        R[a, s, s_prime] = rewards[1][2][0] if s_prime < s else rewards[1][2][1]
                 elif s // NUM_STATES_PER_REGION == 2:  # industrial
                     if a == 0:
-                        R[a, s, s_prime] = 1
+                        R[a, s, s_prime] = rewards[2][0][0] if s_prime == s else rewards[2][0][1]
                     elif a == 1:
-                        R[a, s, s_prime] = 2
+                        R[a, s, s_prime] = rewards[2][1][0] if s_prime > s else rewards[2][1][1]
                     elif a == 2:
-                        R[a, s, s_prime] = 0
+                        R[a, s, s_prime] = rewards[2][2][0] if s_prime < s else rewards[2][2][1]
                 elif s // NUM_STATES_PER_REGION == 3:  # suburb
                     if a == 0:
-                        R[a, s, s_prime] = 0
+                        R[a, s, s_prime] = rewards[3][0][0] if s_prime == s else rewards[3][0][1]
                     elif a == 1:
-                        R[a, s, s_prime] = -1
+                        R[a, s, s_prime] = rewards[3][1][0] if s_prime > s else rewards[3][1][1]
                     elif a == 2:
-                        R[a, s, s_prime] = 2
+                        R[a, s, s_prime] = rewards[3][2][0] if s_prime < s else rewards[3][2][1]
 
     return R
 
