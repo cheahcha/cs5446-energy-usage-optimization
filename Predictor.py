@@ -1,7 +1,8 @@
+from enum import Enum
 import pandas as pd
 import numpy as np
 from prophet import Prophet
-from utils import REGION_LABEL, REGION_CODE
+from utils import REGION_LABEL, REGION_CODE, State
 
 
 class Predictor:
@@ -39,12 +40,33 @@ class Predictor:
                 'ds': ts.index,
                 'y': ts.values
             })
-            model = Prophet()
+            model = Prophet(yearly_seasonality=True,
+                            weekly_seasonality=False,
+                            daily_seasonality=False,
+                            seasonality_mode='multiplicative')
             model.fit(df_ts)
             self.predictors[region] = model
 
-    def predcit(self, region: str, dt_str: str):
-        region_type = REGION_LABEL[region]
+    def predict(self, region: str, dt_str: str):
+        """Predicts electricity consumption and encodes consumption levels to states 
+        based on main region category.
+
+        0: "residential",
+        1: "commercial",
+        2: "industrial",
+        3: "others",
+
+        If region is residential and energy consumption is low
+        Args:
+            region (str): Region
+            dt_str (str): Year-Month
+
+        Returns:
+            int: State based on region category and consumption level
+        """
+        region_breakdown = REGION_LABEL[region]
+        # Get the main region category
+        region_type = max(region_breakdown, key=region_breakdown.get)
         forecast = self.predictors[region].predict(pd.DataFrame({
             'ds': pd.to_datetime([dt_str])
         }))
@@ -52,10 +74,17 @@ class Predictor:
         consumption = forecast[["yhat"]].values[0][0]
 
         print(f"{region} {dt_str} -> {consumption} {self.thres[region]}")
+        
+        state = -1
+        # low consumption
+        if consumption < self.thres[region][0]: 
+            state = REGION_CODE[region_type] * 3 + State.LOW.value
+        # high consumption
+        elif consumption > self.thres[region][1]: 
+            state = REGION_CODE[region_type] * 3 + State.HIGH.value
+        # sufficient
+        else: 
+            state = REGION_CODE[region_type] * 3 + State.MEDIUM.value
+        print(f"Primary region type: {region_type} -> State: {state}")
 
-        if consumption < self.thres[region][0]:
-            return REGION_CODE[region_type] * 3
-        elif consumption > self.thres[region][1]:
-            return REGION_CODE[region_type] * 3 + 2
-        else:
-            return REGION_CODE[region_type] * 3 + 1
+        return state

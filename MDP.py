@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import mdptoolbox
-from utils import REGION_LABEL, REGION_CODE
+from utils import REGION_LABEL, REGION_CODE, State
 
 ACTIONS = 3  # 0: maintain 1: increase 2: lower
 NUM_STATES_PER_REGION = 3
@@ -13,7 +13,10 @@ def make_transition_prob(df_consumption: pd.DataFrame):
 
     for i in range(1, len(df_consumption)):
         region = df_consumption.iloc[i]["region"]
-        region_type = REGION_LABEL[region]
+
+        region_breakdown = REGION_LABEL[region]
+        region_type = max(region_breakdown, key=region_breakdown.get)
+        
         ts = df_consumption.iloc[i].T[1:]
         ts.index = pd.to_datetime(ts.index)
         ts = ts.astype(float)
@@ -32,12 +35,12 @@ def make_transition_prob(df_consumption: pd.DataFrame):
         def categorize_state(consumption: float):
             base = REGION_CODE[region_type]
             if consumption < lower_thre:
-                return base * 3
+                return base * 3 + State.LOW.value
             elif consumption > high_thre:
-                return base * 3 + 2
+                return base * 3 + State.HIGH.value
             else:
-                return base * 3 + 1
-
+                return base * 3 + State.MEDIUM.value
+            
         df_state["state"] = df_state["consumption"].apply(categorize_state)
 
         for k in range(len(df_state) - 1):
@@ -45,24 +48,27 @@ def make_transition_prob(df_consumption: pd.DataFrame):
             next_state = df_state.iloc[k + 1]['state']
             transition_counts_base[current_state, next_state] += 1
 
+    # Calculate the base transition probability matrix
     P_base = np.zeros((NUM_STATES, NUM_STATES))
     for s in range(NUM_STATES):
         if transition_counts_base[s].sum() > 0:
             P_base[s] = transition_counts_base[s] / transition_counts_base[s].sum()
     P[0] = P_base
 
+    # Define transitions for actions: maintain, increase, and decrease
     for s in range(NUM_STATES):
         for s_prime in range(NUM_STATES):
-            if s_prime == min(s + 1, NUM_STATES - 1):
+            if s_prime == min(s + 1, NUM_STATES - 1): # increase
                 P[1, s, s_prime] = min(P_base[s, s_prime] + 0.1, 1)
             else:
                 P[1, s, s_prime] = P_base[s, s_prime] * 0.9
 
-            if s_prime == max(s - 1, 0):
+            if s_prime == max(s - 1, 0): # decrease
                 P[2, s, s_prime] = min(P_base[s, s_prime] + 0.1, 1)
             else:
                 P[2, s, s_prime] = P_base[s, s_prime] * 0.9
 
+    # Normalise P for each action
     for a in range(ACTIONS):
         for s in range(NUM_STATES):
             if P[a, s].sum() > 0:
@@ -89,12 +95,15 @@ HOLIDAY_SEASON = [
 
 def make_rewards(type: str = "common"):
     R = np.zeros((ACTIONS, NUM_STATES, NUM_STATES))
+
     if type == "holiday":
         rewards = HOLIDAY_SEASON
     else:
         rewards = COMMON_DAYS
+
     for a in range(ACTIONS):
         for s in range(NUM_STATES):
+
             for s_prime in range(NUM_STATES):
                 if s // NUM_STATES_PER_REGION == 0:  # residential
                     if a == 0:
