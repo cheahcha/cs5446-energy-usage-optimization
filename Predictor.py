@@ -2,7 +2,7 @@ from enum import Enum
 import pandas as pd
 import numpy as np
 from prophet import Prophet
-from utils import REGION_LABEL, REGION_CODE, State
+from constants import REGION_LABEL, REGION_CODE, State
 
 
 class Predictor:

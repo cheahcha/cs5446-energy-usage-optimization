@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import mdptoolbox
-from utils import REGION_LABEL, REGION_CODE, State
+from constants import REGION_LABEL, REGION_CODE, State
 
 ACTIONS = 3  # 0: maintain 1: increase 2: lower
 NUM_STATES_PER_REGION = 3
@@ -106,32 +106,32 @@ def make_rewards(type: str = "common"):
 
             for s_prime in range(NUM_STATES):
                 if s // NUM_STATES_PER_REGION == 0:  # residential
-                    if a == 0:
+                    if a == 0: # maintain
                         R[a, s, s_prime] = rewards[0][0][0] if s_prime == s else rewards[0][0][1]
-                    elif a == 1:
+                    elif a == 1: # increase
                         R[a, s, s_prime] = rewards[0][1][0] if s_prime > s else rewards[0][1][1]
-                    elif a == 2:
+                    elif a == 2: # decrease
                         R[a, s, s_prime] = rewards[0][2][0] if s_prime < s else rewards[0][2][1]
                 elif s // NUM_STATES_PER_REGION == 1:  # commercial
-                    if a == 0:
+                    if a == 0: # maintain
                         R[a, s, s_prime] = rewards[1][0][0] if s_prime == s else rewards[1][0][1]
-                    elif a == 1:
+                    elif a == 1: # increase
                         R[a, s, s_prime] = rewards[1][1][0] if s_prime > s else rewards[1][1][1]
-                    elif a == 2:
+                    elif a == 2: # decrease
                         R[a, s, s_prime] = rewards[1][2][0] if s_prime < s else rewards[1][2][1]
                 elif s // NUM_STATES_PER_REGION == 2:  # industrial
-                    if a == 0:
+                    if a == 0: # maintain
                         R[a, s, s_prime] = rewards[2][0][0] if s_prime == s else rewards[2][0][1]
-                    elif a == 1:
+                    elif a == 1: # increase
                         R[a, s, s_prime] = rewards[2][1][0] if s_prime > s else rewards[2][1][1]
-                    elif a == 2:
+                    elif a == 2: # decrease
                         R[a, s, s_prime] = rewards[2][2][0] if s_prime < s else rewards[2][2][1]
                 elif s // NUM_STATES_PER_REGION == 3:  # suburb
-                    if a == 0:
+                    if a == 0: # maintain
                         R[a, s, s_prime] = rewards[3][0][0] if s_prime == s else rewards[3][0][1]
-                    elif a == 1:
+                    elif a == 1: # increase
                         R[a, s, s_prime] = rewards[3][1][0] if s_prime > s else rewards[3][1][1]
-                    elif a == 2:
+                    elif a == 2: # decrease
                         R[a, s, s_prime] = rewards[3][2][0] if s_prime < s else rewards[3][2][1]
 
     return R
