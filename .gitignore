@@ -21,3 +21,5 @@ config.yaml
 *.txt
 
 *.xlsx
+
+.idea/
