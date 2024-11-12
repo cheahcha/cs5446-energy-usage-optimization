@@ -168,8 +168,10 @@ def train_forecasting_model(df_long, region_category='Subzone', forecast_periods
             yearly_seasonality=True,
             weekly_seasonality=False,
             daily_seasonality=False,
-            seasonality_mode='multiplicative'
+            seasonality_mode='multiplicative',
+            seasonality_prior_scale=10.0
         )
+        model.add_country_holidays(country_name='SG')
         
         # Split data into train and test
         train_size = len(region_data) - 6  # Use last 6 months as test set
@@ -189,8 +191,10 @@ def train_forecasting_model(df_long, region_category='Subzone', forecast_periods
             yearly_seasonality=True,
             weekly_seasonality=False,
             daily_seasonality=False,
-            seasonality_mode='multiplicative'
+            seasonality_mode='multiplicative',
+            seasonality_prior_scale=10.0
         )
+        full_model.add_country_holidays(country_name='SG')
         
         full_model.fit(region_data)
 
