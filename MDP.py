@@ -103,6 +103,7 @@ def make_rewards(type: str = "common"):
 
     for a in range(ACTIONS):
         for s in range(NUM_STATES):
+            # 0: residential, 1: commercial, 2: industrial, 3: others
             sector_idx = s // NUM_STATES_PER_REGION
             for s_prime in range(NUM_STATES):
                 action_rewards = rewards[sector_idx]

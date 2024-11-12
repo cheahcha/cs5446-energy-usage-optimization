@@ -44,6 +44,8 @@ class Predictor:
                             weekly_seasonality=False,
                             daily_seasonality=False,
                             seasonality_mode='multiplicative')
+            # Add SG holidays
+            model.add_country_holidays(country_name='SG')
             model.fit(df_ts)
             self.predictors[region] = model
 
