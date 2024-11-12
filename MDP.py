@@ -103,37 +103,16 @@ def make_rewards(type: str = "common"):
 
     for a in range(ACTIONS):
         for s in range(NUM_STATES):
-
+            sector_idx = s // NUM_STATES_PER_REGION
             for s_prime in range(NUM_STATES):
-                if s // NUM_STATES_PER_REGION == 0:  # residential
-                    if a == 0: # maintain
-                        R[a, s, s_prime] = rewards[0][0][0] if s_prime == s else rewards[0][0][1]
-                    elif a == 1: # increase
-                        R[a, s, s_prime] = rewards[0][1][0] if s_prime > s else rewards[0][1][1]
-                    elif a == 2: # decrease
-                        R[a, s, s_prime] = rewards[0][2][0] if s_prime < s else rewards[0][2][1]
-                elif s // NUM_STATES_PER_REGION == 1:  # commercial
-                    if a == 0: # maintain
-                        R[a, s, s_prime] = rewards[1][0][0] if s_prime == s else rewards[1][0][1]
-                    elif a == 1: # increase
-                        R[a, s, s_prime] = rewards[1][1][0] if s_prime > s else rewards[1][1][1]
-                    elif a == 2: # decrease
-                        R[a, s, s_prime] = rewards[1][2][0] if s_prime < s else rewards[1][2][1]
-                elif s // NUM_STATES_PER_REGION == 2:  # industrial
-                    if a == 0: # maintain
-                        R[a, s, s_prime] = rewards[2][0][0] if s_prime == s else rewards[2][0][1]
-                    elif a == 1: # increase
-                        R[a, s, s_prime] = rewards[2][1][0] if s_prime > s else rewards[2][1][1]
-                    elif a == 2: # decrease
-                        R[a, s, s_prime] = rewards[2][2][0] if s_prime < s else rewards[2][2][1]
-                elif s // NUM_STATES_PER_REGION == 3:  # suburb
-                    if a == 0: # maintain
-                        R[a, s, s_prime] = rewards[3][0][0] if s_prime == s else rewards[3][0][1]
-                    elif a == 1: # increase
-                        R[a, s, s_prime] = rewards[3][1][0] if s_prime > s else rewards[3][1][1]
-                    elif a == 2: # decrease
-                        R[a, s, s_prime] = rewards[3][2][0] if s_prime < s else rewards[3][2][1]
-
+                action_rewards = rewards[sector_idx]
+                if a == 0: # maintain
+                    R[a, s, s_prime] = action_rewards[0][0] if s_prime == s else action_rewards[0][1]
+                elif a == 1: # increase
+                    R[a, s, s_prime] = action_rewards[1][0] if s_prime > s else action_rewards[1][1]
+                elif a == 2: # decrease
+                    R[a, s, s_prime] = action_rewards[2][0] if s_prime < s else action_rewards[2][1]
+                
     return R
 
 
