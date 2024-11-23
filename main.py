@@ -70,8 +70,8 @@ if __name__ == "__main__":
     
     for region in REGION_LABEL:
         
-        code = predictor.predict(region, NEXT_FORECAST_PERIOD)
-        dominant_region_type = REGION_CODE_INVERSE[code // 4]
+        code, y_pred = predictor.predict(region, NEXT_FORECAST_PERIOD)
+        dominant_region_type = REGION_CODE_INVERSE[code // 3]
         action_map = vote(region, code, policy)
         optimal_action_code = max(action_map, key=action_map.get)
         optimal_action = POLICY_MAP[optimal_action_code]
@@ -88,7 +88,7 @@ if __name__ == "__main__":
             'optimal_action': optimal_action
         }
     
-    print(f"Policy result df:\n {policy_result.head()}")
+    print(f"Policy result df:\n {policy_result.tail()}")
 
     if TO_SAVE:
         if not os.path.exists('output'):

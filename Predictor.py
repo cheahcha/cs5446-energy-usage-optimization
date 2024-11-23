@@ -89,4 +89,4 @@ class Predictor:
             state = REGION_CODE[region_type] * 3 + State.MEDIUM.value
         print(f"Primary region type: {region_type} -> State: {state}")
 
-        return state
+        return state, consumption

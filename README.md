@@ -35,3 +35,5 @@ python main.py
 - forecasting_eda.ipynb: Contains the code cells for plotting time-series and generating forecasts.
 - utils/: Contains forecasting and plotting functions for forecasting_eda.ipynb
 
+### Evaluation
+- mdp_evaluation.ipynb: Contains the code cells for comparing original consumption data against the electricity consumption with the MDP-based model.
